@@ -3,7 +3,8 @@ package controller
 import (
 	"net/http"
 	"projects/entitys"
-	authorRepository "projects/repositorys/author"
+	"projects/repositorys/authorRepository"
+
 	"projects/utils"
 
 	"github.com/labstack/echo/v4"

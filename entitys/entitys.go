@@ -44,12 +44,13 @@ type RefreshToken struct {
 type Project struct {
 	ID         int
 	Name       string
-	price      uint64
-	developers []*Developer `gorm:"many2many:dev_project;"`
+	Customer   uint64
+	developers []Developer `gorm:"many2many:dev_project;"`
 }
 
 type Developer struct {
 	Id       int
 	Name     string
-	projects []*Project `gorm:"many2many:dev_project;"`
+	Age      int
+	Projects []Project `gorm:"many2many:dev_project;"`
 }

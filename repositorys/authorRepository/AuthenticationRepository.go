@@ -1,4 +1,4 @@
-package repositorys
+package authorRepository
 
 import (
 	"projects/configs"

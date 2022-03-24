@@ -1,4 +1,4 @@
-package repositorys
+package bookRepository
 
 import (
 	"projects/configs"

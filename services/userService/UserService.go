@@ -1,19 +1,19 @@
-package services
+package userService
 
 import (
 	"projects/entitys"
-	repositorys "projects/repositorys/user"
+	"projects/repositorys/userRepository"
 )
 
 func AddUser(entity entitys.User) entitys.User {
-	user := repositorys.AddUser(entity)
+	user := userRepository.AddUser(entity)
 	return user
 }
 
 func ListUser() []entitys.User {
-	return repositorys.ListUser()
+	return userRepository.ListUser()
 }
 
 func FindByUserId(Id int) entitys.User {
-	return repositorys.FindByUserId(Id)
+	return userRepository.FindByUserId(Id)
 }

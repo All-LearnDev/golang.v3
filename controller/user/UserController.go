@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 	"projects/entitys"
-	userService "projects/services/user"
+	"projects/services/userService"
 	"projects/utils"
 	"strconv"
 
