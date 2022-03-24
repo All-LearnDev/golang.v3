@@ -1,0 +1,39 @@
+Code First :
+1. Design Class Table:
+type Product struct {
+	gorm.Model
+	Code  string
+	Price uint
+}
+2. Run migrate: 
+	db.AutoMigrate(&Product{})
+
+3. Insert Data:
+	db.Create(&Product{Code: "D42", Price: 100})
+
+4. Query ORM:
+// Read
+	var product Product
+	db.First(&product, 1)                 // find product with integer primary key
+	db.First(&product, "code = ?", "D42") // find product with code D42
+	
+	
+5. update : 
+	// Update - update product's price to 200
+	db.Model(&product).Update("Price", 200)
+	// Update - update multiple fields
+	db.Model(&product).Updates(Product{Price: 200, Code: "F42"}) // non-zero fields
+	db.Model(&product).Updates(map[string]interface{}{"Price": 200, "Code": "F42"})
+
+6. Delete: 
+	// Delete - delete product
+	db.Delete(&product, 1)	
+	
+	
+	func InitializeRouter() {
+	rest := echo.New()
+	rest.GET("/books/initialize", controller.InitializeData)
+	rest.GET("/books/list", controller.ListBook)
+	rest.GET("/books/add", controller.AddBook)
+	rest.Logger.Fatal(rest.Start(":1323"))
+}
