@@ -44,7 +44,7 @@ type RefreshToken struct {
 type Project struct {
 	ID         int
 	Name       string
-	Customer   uint64
+	Customer   string
 	developers []Developer `gorm:"many2many:dev_project;"`
 }
 

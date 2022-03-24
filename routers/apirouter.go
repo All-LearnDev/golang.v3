@@ -3,6 +3,7 @@ package routers
 import (
 	authorController "projects/controller/author"
 	bookController "projects/controller/book"
+	"projects/controller/developer"
 	userController "projects/controller/user"
 	"projects/utils"
 
@@ -55,5 +56,11 @@ func InitializeApiMapping(rest *echo.Echo) {
 	}
 	adminGroup.Use(middleware.JWTWithConfig(config))
 	adminGroup.GET("/list/book", bookController.ListBook)
+
+	// Test many to many in GoRM:
+	developerGroup := rest.Group("/developer")
+	developerGroup.POST("/add", developer.AddNewDeveloper)
+	developerGroup.GET("/getbyid/:id", developer.GetDeveloperById)
+	developerGroup.GET("/list", developer.ListDevelopers)
 
 }
