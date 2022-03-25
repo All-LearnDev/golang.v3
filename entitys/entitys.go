@@ -45,12 +45,12 @@ type Project struct {
 	ID         int
 	Name       string
 	Customer   string
-	developers []Developer `gorm:"many2many:dev_project;"`
+	Developers []Developer `gorm:"many2many:dev_project;"`
 }
 
 type Developer struct {
 	Id       int
 	Name     string
 	Age      int
-	Projects []Project `gorm:"many2many:dev_project;"`
+	Projects []Project `gorm:"many2many:dev_project;" `
 }

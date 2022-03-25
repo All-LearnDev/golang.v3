@@ -4,6 +4,7 @@ import (
 	authorController "projects/controller/author"
 	bookController "projects/controller/book"
 	"projects/controller/developer"
+	"projects/controller/project"
 	userController "projects/controller/user"
 	"projects/utils"
 
@@ -59,8 +60,16 @@ func InitializeApiMapping(rest *echo.Echo) {
 
 	// Test many to many in GoRM:
 	developerGroup := rest.Group("/developer")
+	developerGroup.GET("/list", developer.ListDevelopers)
 	developerGroup.POST("/add", developer.AddNewDeveloper)
 	developerGroup.GET("/getbyid/:id", developer.GetDeveloperById)
-	developerGroup.GET("/list", developer.ListDevelopers)
+	developerGroup.GET("/delete/:id", developer.DelDeveloperById)
+	developerGroup.POST("/update", developer.UpdateDeveloper)
+
+	projectGroup := rest.Group("/project")
+	projectGroup.GET("/list", project.ListProjects)
+	projectGroup.GET("/list/eager", project.ListEagerProjects)
+	projectGroup.GET("/lazy/findbyid/:id", project.FindSimpleProjectById)
+	projectGroup.GET("/eager/findbyid/:id", project.FindProjectById)
 
 }
