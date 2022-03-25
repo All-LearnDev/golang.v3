@@ -48,7 +48,6 @@ func DelProjectById(Id int) {
 
 func UpdateProject(id int, name string, customer string) entitys.Project {
 	project := FindSimpleProjectById(id)
-	println(" kon meo project.Name = name", name)
 	project.Name = name
 	project.Customer = customer
 	Connection := configs.GetConnection()
