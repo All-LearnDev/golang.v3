@@ -14,6 +14,14 @@ func ListUser() []entitys.User {
 	return userRepository.ListUser()
 }
 
+func ListLazyUser() []entitys.User {
+	return userRepository.ListUser()
+}
+
 func FindByUserId(Id int) entitys.User {
 	return userRepository.FindByUserId(Id)
+}
+
+func DeleteUserById(Id int) {
+	userRepository.DeleteUserById(Id)
 }

@@ -29,12 +29,6 @@ func InitializeApiMapping(rest *echo.Echo) {
 	bookGroup.GET("/findbyid/:id", bookController.FindById)
 	bookGroup.GET("/list/:page/:pageSize", bookController.Paging)
 
-	// User group :
-	rest.POST("/users/add", userController.AddUser)
-	rest.GET("/users/list", userController.ListUser)
-	rest.GET("/users/findbyid/:id", userController.FindByUserId)
-	///rest.GET("/users/download/excel", userController.WriteExcelFile)
-
 	// Working with JWT and user management:
 	authGroup := rest.Group("/author")
 	authGroup.GET("/login", authorController.Login)
@@ -58,7 +52,7 @@ func InitializeApiMapping(rest *echo.Echo) {
 	adminGroup.Use(middleware.JWTWithConfig(config))
 	adminGroup.GET("/list/book", bookController.ListBook)
 
-	// Test many to many in GoRM:
+	// Test many to many in GoRM: Dev - Project
 	developerGroup := rest.Group("/developer")
 	developerGroup.GET("/list", developer.ListDevelopers)
 	developerGroup.POST("/add", developer.AddNewDeveloper)
@@ -71,5 +65,17 @@ func InitializeApiMapping(rest *echo.Echo) {
 	projectGroup.GET("/list/eager", project.ListEagerProjects)
 	projectGroup.GET("/lazy/findbyid/:id", project.FindSimpleProjectById)
 	projectGroup.GET("/eager/findbyid/:id", project.FindProjectById)
+
+	// Test one to many in GoRM: User - Images
+	// User group :
+	userGroup := rest.Group("/users")
+	userGroup.POST("/add", userController.AddUser)
+	userGroup.GET("/list", userController.ListUser)
+	userGroup.GET("/list/lazy", userController.ListLazyUser)
+	userGroup.GET("/findbyid/:id", userController.FindByUserId)
+	// Delete user and all user' images
+	userGroup.GET("/delete/:id", userController.DeleteUserById)
+
+	// Continue : Test - one to one
 
 }

@@ -29,12 +29,28 @@ func ListUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func ListLazyUser(c echo.Context) error {
+	result := userService.ListLazyUser()
+	return c.JSON(http.StatusOK, result)
+}
+
 func FindByUserId(c echo.Context) error {
 	id := c.Param("id")
 	intVar, err := strconv.Atoi(id)
 	if err == nil {
 		user := userService.FindByUserId(intVar)
 		return c.JSON(http.StatusOK, user)
+	} else {
+		return c.String(http.StatusOK, "Record not found ")
+	}
+}
+
+func DeleteUserById(c echo.Context) error {
+	id := c.Param("id")
+	intVar, err := strconv.Atoi(id)
+	if err == nil {
+		userService.DeleteUserById(intVar)
+		return c.JSON(http.StatusOK, "Deleted ")
 	} else {
 		return c.String(http.StatusOK, "Record not found ")
 	}
