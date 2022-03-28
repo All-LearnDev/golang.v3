@@ -15,39 +15,45 @@ func InitializeData() {
 
 }
 
-func FindById(Id int) entitys.Book {
+func FindById(Id int) (entitys.Book, error) {
 	Connection := configs.GetConnection()
 	var book entitys.Book
-	Connection.First(&book, Id)
-	return book
+	error := Connection.First(&book, Id).Error
+	if error == nil {
+		return book, nil
+	} else {
+		return entitys.Book{}, gorm.ErrRecordNotFound
+	}
 }
-func AddBook(name string, authorName string) entitys.Book {
+func AddBook(name string, authorName string) (error, entitys.Book) {
 	Connection := configs.GetConnection()
 	book := entitys.Book{Name: name, AuthorName: authorName}
-	Connection.Create(&book)
-	return book
+	error := Connection.Create(&book)
+	return error.Error, book
 }
 
-func UpdateBook(ID int, name string, authorName string) entitys.Book {
+func UpdateBook(ID int, name string, authorName string) (error, entitys.Book) {
 	Connection := configs.GetConnection()
-	book := FindById(ID)
+	book, _ := FindById(ID)
 	book.Name = name
 	book.AuthorName = authorName
-	Connection.Save(book)
-	return book
+	error := Connection.Save(book)
+	return error.Error, book
+
 }
 
-func DeleteBookId(Id int) {
+func DeleteBookId(Id int) error {
 	Connection := configs.GetConnection()
 	var book entitys.Book
-	Connection.Delete(&book, Id)
+	error := Connection.Delete(&book, Id)
+	return error.Error
 }
 
-func ListBook() []entitys.Book {
+func ListBook() (error, []entitys.Book) {
 	Connection := configs.GetConnection()
 	var lists []entitys.Book
-	Connection.Find(&lists)
-	return lists
+	error := Connection.Find(&lists)
+	return error.Error, lists
 }
 
 func Paginate(page int, pageSize int) func(db *gorm.DB) *gorm.DB {

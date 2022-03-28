@@ -3,6 +3,7 @@ module projects
 go 1.18
 
 require (
+	github.com/dranikpg/dto-mapper v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
@@ -28,6 +29,7 @@ require (
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
+	gopkg.in/jeevatkm/go-model.v1 v1.1.0 // indirect
 	gorm.io/driver/mysql v1.3.2 // indirect
 	gorm.io/driver/sqlite v1.3.1 // indirect
 	gorm.io/gorm v1.23.3 // indirect

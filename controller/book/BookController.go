@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"projects/entitys"
 	"projects/forms"
 	"projects/services/bookService"
 	"projects/utils"
@@ -19,13 +18,22 @@ func InitializeData(c echo.Context) error {
 }
 
 func ListBook(c echo.Context) error {
-	list := bookService.ListBook()
-	return c.JSON(http.StatusOK, list)
+	error, list := bookService.ListBook()
+	if error == nil {
+		return c.JSON(http.StatusOK, echo.Map{
+			"result": true,
+			"list":   list,
+		})
+	} else {
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"result": false,
+			"error":  error.Error(),
+		})
+	}
 }
 
 func AddBook(c echo.Context) error {
 	var fbook forms.FBook
-	var book entitys.Book
 	c.Bind(&fbook)
 	var validate = validator.New()
 	err := validate.Struct(fbook)
@@ -33,8 +41,19 @@ func AddBook(c echo.Context) error {
 		listError := utils.Validate(fbook)
 		return c.JSON(http.StatusBadRequest, listError)
 	} else {
-		book = bookService.AddBook(fbook)
-		return c.JSON(http.StatusOK, book)
+		error, book := bookService.AddBook(fbook)
+		if error == nil {
+			return c.JSON(http.StatusOK, echo.Map{
+				"result": true,
+				"book":   book,
+			})
+		} else {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"result": false,
+				"error":  error.Error(),
+			})
+		}
+
 	}
 }
 
@@ -48,7 +67,7 @@ func ValidateBook(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, listError)
 
 	} else {
-		return c.String(http.StatusOK, "Check validate !")
+		return c.String(http.StatusOK, "Data Validated")
 	}
 }
 
@@ -62,20 +81,55 @@ func UpdateBook(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, listError)
 
 	} else {
-		book := bookService.UpdateBook(fbook)
-		return c.JSON(http.StatusOK, book)
+		error, book := bookService.UpdateBook(fbook)
+		if error == nil {
+			return c.JSON(http.StatusOK, echo.Map{
+				"result": true,
+				"book":   book,
+			})
+		} else {
+			return c.JSON(http.StatusBadRequest, echo.Map{
+				"result": false,
+				"error":  error.Error(),
+			})
+		}
+
 	}
 
 }
 
 func FindById(c echo.Context) error {
 	id := c.Param("id")
-	intVar, err := strconv.Atoi(id)
-	if err == nil {
-		book := bookService.FindById(intVar)
-		return c.JSON(http.StatusOK, book)
+	intVar, _ := strconv.Atoi(id)
+	book, error := bookService.FindById(intVar)
+	if error == nil {
+		return c.JSON(http.StatusOK, echo.Map{
+			"result": true,
+			"book":   book,
+		})
 	} else {
-		return c.String(http.StatusOK, "Record not found ")
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"result": false,
+			"error":  error.Error(),
+		})
+	}
+
+}
+
+func DeleteBookId(c echo.Context) error {
+	id := c.Param("id")
+	intVar, _ := strconv.Atoi(id)
+	error := bookService.DeleteBookId(intVar)
+	if error == nil {
+		return c.JSON(http.StatusOK, echo.Map{
+			"result": true,
+		})
+
+	} else {
+		return c.JSON(http.StatusOK, echo.Map{
+			"result": false,
+			"error":  error.Error(),
+		})
 	}
 }
 

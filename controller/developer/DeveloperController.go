@@ -7,6 +7,7 @@ import (
 	"projects/services/developerService"
 	"strconv"
 
+	"github.com/dranikpg/dto-mapper"
 	"github.com/labstack/echo/v4"
 )
 
@@ -17,9 +18,9 @@ func AddNewDeveloper(c echo.Context) error {
 	developer.Name = fdeveloper.Name
 	developer.Age = fdeveloper.Age
 	var list []entitys.Project
-	if len(fdeveloper.List) > 0 {
-		for i := 0; i < len(fdeveloper.List); i++ {
-			project := entitys.Project{Name: fdeveloper.List[i].Name, Customer: fdeveloper.List[i].Customer}
+	if len(fdeveloper.Projects) > 0 {
+		for i := 0; i < len(fdeveloper.Projects); i++ {
+			project := entitys.Project{Name: fdeveloper.Projects[i].Name, Customer: fdeveloper.Projects[i].Customer}
 			list = append(list, project)
 		}
 		developer.Projects = list
@@ -57,14 +58,24 @@ func UpdateDeveloper(c echo.Context) error {
 	developer.Age = fdeveloper.Age
 	developer.Id = fdeveloper.Id
 	var list []entitys.Project
-	if len(fdeveloper.List) > 0 {
-		for i := 0; i < len(fdeveloper.List); i++ {
-			project := entitys.Project{ID: fdeveloper.List[i].ID, Name: fdeveloper.List[i].Name, Customer: fdeveloper.List[i].Customer}
+	if len(fdeveloper.Projects) > 0 {
+		for i := 0; i < len(fdeveloper.Projects); i++ {
+			project := entitys.Project{ID: fdeveloper.Projects[i].ID, Name: fdeveloper.Projects[i].Name, Customer: fdeveloper.Projects[i].Customer}
 			list = append(list, project)
 		}
 		developer.Projects = list
 	}
 	developer = developerService.UpdateDeveloper(developer)
+	return c.JSON(http.StatusOK, developer)
+
+}
+
+func Copy(c echo.Context) error {
+	var fdeveloper forms.FDeveloper
+	c.Bind(&fdeveloper)
+	var developer entitys.Developer
+	mapper := dto.Mapper{}
+	mapper.Map(&developer, fdeveloper)
 	return c.JSON(http.StatusOK, developer)
 
 }

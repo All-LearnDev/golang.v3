@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"projects/controller"
 	authorController "projects/controller/author"
 	bookController "projects/controller/book"
 	"projects/controller/developer"
@@ -60,6 +61,9 @@ func InitializeApiMapping(rest *echo.Echo) {
 	developerGroup.GET("/delete/:id", developer.DelDeveloperById)
 	developerGroup.POST("/update", developer.UpdateDeveloper)
 
+	///Test model mapper:
+	developerGroup.POST("/copy", developer.Copy)
+
 	projectGroup := rest.Group("/project")
 	projectGroup.GET("/list", project.ListProjects)
 	projectGroup.GET("/list/eager", project.ListEagerProjects)
@@ -75,6 +79,10 @@ func InitializeApiMapping(rest *echo.Echo) {
 	userGroup.GET("/findbyid/:id", userController.FindByUserId)
 	// Delete user and all user' images
 	userGroup.GET("/delete/:id", userController.DeleteUserById)
+
+	testGroup := rest.Group("/test")
+
+	testGroup.GET("/copy", controller.Test)
 
 	// Continue : Test - one to one
 

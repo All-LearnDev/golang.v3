@@ -10,25 +10,32 @@ func InitializeData() {
 	bookRepository.InitializeData()
 }
 
-func ListBook() []entitys.Book {
-	list := bookRepository.ListBook()
-	return list
+func ListBook() (error, []entitys.Book) {
+	return bookRepository.ListBook()
 }
 
-func AddBook(fbook forms.FBook) entitys.Book {
-	book := bookRepository.AddBook(fbook.Name, fbook.AuthorName)
-	return book
+func AddBook(fbook forms.FBook) (error, entitys.Book) {
+	return bookRepository.AddBook(fbook.Name, fbook.AuthorName)
 }
 
-func UpdateBook(fbook forms.FBook) entitys.Book {
-	book := bookRepository.UpdateBook(fbook.ID, fbook.Name, fbook.AuthorName)
-	return book
+func UpdateBook(fbook forms.FBook) (error, entitys.Book) {
+	return bookRepository.UpdateBook(fbook.ID, fbook.Name, fbook.AuthorName)
 
 }
 
-func FindById(id int) entitys.Book {
-	book := bookRepository.FindById(id)
-	return book
+func FindById(id int) (entitys.Book, error) {
+	book, error := bookRepository.FindById(id)
+	if error == nil {
+		return book, nil
+	} else {
+		return entitys.Book{}, error
+	}
+
+}
+
+func DeleteBookId(Id int) error {
+
+	return bookRepository.DeleteBookId(Id)
 }
 
 func Paging(page int, pageSize int) []entitys.Book {

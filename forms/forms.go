@@ -14,8 +14,8 @@ type FProject struct {
 }
 
 type FDeveloper struct {
-	Id   int        `json:"id" `
-	Name string     `json:"name" `
-	Age  int        `json:"age" `
-	List []FProject `json:"list"`
+	Id       int        `json:"id" `
+	Name     string     `json:"name" `
+	Age      int        `json:"age" `
+	Projects []FProject `json:"projects"`
 }
