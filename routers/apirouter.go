@@ -30,6 +30,7 @@ func InitializeApiMapping(rest *echo.Echo) {
 	bookGroup.GET("/findbyid/:id", bookController.FindById)
 	//books/list/paging?size=3&page=0&sort=-name
 	bookGroup.GET("/list/paging", bookController.PagingV2)
+	bookGroup.DELETE("/delete/:id", bookController.DeleteBookId)
 
 	// Working with JWT and user management:
 	authGroup := rest.Group("/author")

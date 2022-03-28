@@ -79,3 +79,11 @@ func Paging(page int, pageSize int) []entitys.Book {
 	Connection.Scopes(Paginate(page, pageSize)).Find(&books)
 	return books
 }
+
+func PagingV2(page int, pageSize int) *gorm.DB {
+
+	connection := configs.GetConnection()
+	var books []entitys.Book
+	result := connection.Find(&books)
+	return result
+}
