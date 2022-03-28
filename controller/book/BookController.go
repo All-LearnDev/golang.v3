@@ -2,6 +2,8 @@ package controller
 
 import (
 	"net/http"
+	"projects/configs"
+	"projects/entitys"
 	"projects/forms"
 	"projects/services/bookService"
 	"projects/utils"
@@ -9,8 +11,16 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/morkid/paginate"
 	"github.com/xuri/excelize/v2"
 )
+
+type PagingPageWraper struct {
+	Total       int
+	CurrentSize int
+	PageSize    int
+	List        []struct{}
+}
 
 func InitializeData(c echo.Context) error {
 	bookService.InitializeData()
@@ -30,6 +40,17 @@ func ListBook(c echo.Context) error {
 			"error":  error.Error(),
 		})
 	}
+}
+
+func PagingV2(c echo.Context) error {
+
+	pg := paginate.New(&paginate.Config{
+		DefaultSize: 3,
+	})
+	connection := configs.GetConnection()
+	var books []entitys.Book
+	result := connection.Find(&books)
+	return c.JSON(200, pg.Response(result, c.Request(), &[]entitys.Book{}))
 }
 
 func AddBook(c echo.Context) error {
@@ -131,18 +152,6 @@ func DeleteBookId(c echo.Context) error {
 			"error":  error.Error(),
 		})
 	}
-}
-
-func Paging(c echo.Context) error {
-	page, err := strconv.Atoi(c.Param("page"))
-	pageSize, err := strconv.Atoi(c.Param("pageSize"))
-	if err == nil {
-		books := bookService.Paging(page, pageSize)
-		return c.JSON(http.StatusOK, books)
-	} else {
-		return c.JSON(http.StatusOK, nil)
-	}
-
 }
 
 func WriteExcelFile(c echo.Context) error {

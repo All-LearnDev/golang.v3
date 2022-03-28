@@ -28,7 +28,8 @@ func InitializeApiMapping(rest *echo.Echo) {
 	bookGroup.POST("/add", bookController.AddBook)
 	bookGroup.POST("/update", bookController.UpdateBook)
 	bookGroup.GET("/findbyid/:id", bookController.FindById)
-	bookGroup.GET("/list/:page/:pageSize", bookController.Paging)
+	//books/list/paging?size=3&page=0&sort=-name
+	bookGroup.GET("/list/paging", bookController.PagingV2)
 
 	// Working with JWT and user management:
 	authGroup := rest.Group("/author")
