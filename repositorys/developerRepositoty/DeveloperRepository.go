@@ -6,15 +6,16 @@ import (
 	"projects/repositorys/projectRepository"
 )
 
+var Connection = configs.GetConnection()
+
 func AddNewDeveloper(dev entitys.Developer) entitys.Developer {
-	Connection := configs.GetConnection()
+
 	dev = entitys.Developer{Name: dev.Name, Age: dev.Age, Projects: dev.Projects}
 	Connection.Create(&dev)
 	return dev
 }
 
 func GetDeveloperById(Id int) entitys.Developer {
-	Connection := configs.GetConnection()
 	var dev entitys.Developer
 	Connection.Where("Id = ?", Id).Preload("Projects").First(&dev)
 	//Connection.Preload("Images").First(&user)
@@ -22,14 +23,12 @@ func GetDeveloperById(Id int) entitys.Developer {
 }
 
 func ListDevelopers() []entitys.Developer {
-	Connection := configs.GetConnection()
 	var list []entitys.Developer
 	Connection.Preload("Projects").Find(&list)
 	return list
 }
 
 func DelDeveloperById(Id int) {
-	Connection := configs.GetConnection()
 	var developer entitys.Developer
 	developer = GetDeveloperById(Id)
 	// Remote relationship
@@ -38,7 +37,6 @@ func DelDeveloperById(Id int) {
 }
 
 func UpdateDeveloper(newDev entitys.Developer) entitys.Developer {
-	Connection := configs.GetConnection()
 	var developer entitys.Developer
 	developer = GetDeveloperById(newDev.Id)
 	developer.Name = newDev.Name
