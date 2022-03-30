@@ -18,7 +18,7 @@ func Login(c echo.Context) error {
 
 	// Throws unauthorized error
 	var user entitys.JUser
-	user = authorRepository.FindUserByUserName(username)
+	_, user = authorRepository.FindUserByUserName(username)
 	if (username != user.Name) || (utils.CheckPasswordHash(password, user.Password) != true) {
 		return echo.ErrUnauthorized
 	}
@@ -46,12 +46,21 @@ func AddRolesToUser(c echo.Context) error {
 	c.Bind(&userRole)
 	user_id := userRole.UserId
 	// Finf user by id:
-	user := authorRepository.FindUserById(user_id)
+	_, user := authorRepository.FindUserById(user_id)
 	// Save roles to DB:
-	user = authorRepository.AddRolesToUser(user, userRole.Roles)
-	return c.JSON(http.StatusOK, echo.Map{
-		"user": user,
-	})
+	er, user := authorRepository.AddRolesToUser(user, userRole.Roles)
+	if er == nil {
+		return c.JSON(http.StatusOK, echo.Map{
+			"result ": true,
+			"user":    user,
+		})
+	} else {
+		return c.JSON(http.StatusOK, echo.Map{
+			"result ": false,
+			"user":    user,
+		})
+	}
+
 }
 
 func Register(c echo.Context) error {
@@ -59,16 +68,20 @@ func Register(c echo.Context) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 	// Check exits user in DB:
-	user := authorRepository.FindUserByEmail(email)
+	_, user := authorRepository.FindUserByEmail(email)
 	if user.Name != "" {
-		return c.String(http.StatusBadRequest, "Email exits in DB")
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"result ": false,
+			"message": "Email exits in DB",
+		})
+
 	}
 	// Register user
 	var newUser entitys.JUser
-	newUser = authorRepository.AddJUser(username, email, password)
+	_, newUser = authorRepository.AddJUser(username, email, password)
 	// Gen token to return for view:
-	_, accessToken := utils.GenerateJWT(username, user.Roles)
 	// Generate access_token
+	_, accessToken := utils.GenerateJWT(username, user.Roles)
 	// Generate refreshToken
 	_, refreshToken := utils.GenerateRefreshToken(username, user.Roles)
 	// Save refreshToken to DB:
@@ -82,6 +95,7 @@ func Register(c echo.Context) error {
 }
 
 func Logout(c echo.Context) error {
+	// Delete refresh_token and access_token
 	return c.JSON(http.StatusOK, echo.Map{
 		"token": nil,
 	})
@@ -94,11 +108,11 @@ func RenewToken(c echo.Context) error {
 	refreshToken := c.Param("refreshToken")
 	user_id := c.Param("user_id")
 	intVar, _ := strconv.Atoi(user_id)
-	user := authorRepository.FindUserById(intVar)
+	_, user := authorRepository.FindUserById(intVar)
 
 	if utils.ValidToken(refreshToken) {
 		if utils.ExpiredToken(refreshToken) {
-			refreshTokenObject := authorRepository.FindRefreshTokenByToken(refreshToken)
+			_, refreshTokenObject := authorRepository.FindRefreshTokenByToken(refreshToken)
 			if refreshTokenObject.UserName != "" {
 				// Generate access_token
 				_, return_access_token = utils.GenerateJWT(refreshTokenObject.UserName, user.Roles)

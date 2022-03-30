@@ -11,49 +11,49 @@ import (
 
 var Connection = configs.GetConnection()
 
-func AddJUser(name string, email string, password string) entitys.JUser {
+func AddJUser(name string, email string, password string) (error, entitys.JUser) {
 	var hash string
 	hash, _ = utils.HashPassword(password)
 	user := entitys.JUser{Name: name, Email: email, Password: hash}
-	Connection.Create(&user)
-	return user
+	error := Connection.Create(&user).Error
+	return error, user
 
 }
 
-func AddRolesToUser(user entitys.JUser, fRoles []forms.Role) entitys.JUser {
+func AddRolesToUser(user entitys.JUser, fRoles []forms.Role) (error, entitys.JUser) {
 	var roles []entitys.Roles
 	mapper := dto.Mapper{}
 	mapper.Map(&roles, fRoles)
 	user.Roles = roles
-	Connection.Save(user)
-	return user
+	error := Connection.Save(user).Error
+	return error, user
 
 }
 
-func FindUserByEmail(email string) entitys.JUser {
+func FindUserByEmail(email string) (error, entitys.JUser) {
 
 	var user entitys.JUser
-	Connection.Where("Email = ?", email).Preload("Roles").First(&user)
-	return user
+	error := Connection.Where("Email = ?", email).Preload("Roles").First(&user).Error
+	return error, user
 }
 
-func FindUserById(id int) entitys.JUser {
+func FindUserById(id int) (error, entitys.JUser) {
 
 	var user entitys.JUser
-	Connection.Where("Id = ?", id).Preload("Roles").First(&user)
-	return user
+	error := Connection.Where("Id = ?", id).Preload("Roles").First(&user).Error
+	return error, user
 }
 
-func FindUserByUserName(name string) entitys.JUser {
+func FindUserByUserName(name string) (error, entitys.JUser) {
 	var user entitys.JUser
-	Connection.Where("Name = ?", name).Preload("Roles").First(&user)
-	return user
+	error := Connection.Where("Name = ?", name).Preload("Roles").First(&user).Error
+	return error, user
 }
 
-func FindRefreshTokenByUserId(Id int) entitys.RefreshToken {
+func FindRefreshTokenByUserId(Id int) (error, entitys.RefreshToken) {
 	var token entitys.RefreshToken
-	Connection.Where("Id = ?", Id).First(&token)
-	return token
+	error := Connection.Where("Id = ?", Id).First(&token).Error
+	return error, token
 }
 
 func FindRefreshTokenByUserName(userName string) entitys.RefreshToken {
@@ -62,14 +62,14 @@ func FindRefreshTokenByUserName(userName string) entitys.RefreshToken {
 	return token
 }
 
-func FindRefreshTokenByToken(token string) entitys.RefreshToken {
+func FindRefreshTokenByToken(token string) (error, entitys.RefreshToken) {
 	var refreshToken entitys.RefreshToken
-	Connection.Where("Token = ?", token).First(&refreshToken)
-	return refreshToken
+	error := Connection.Where("Token = ?", token).First(&refreshToken).Error
+	return error, refreshToken
 }
 
-func SaveRefreshToken(refreshToken entitys.RefreshToken) entitys.RefreshToken {
-	Connection.Create(&refreshToken)
-	return refreshToken
+func SaveRefreshToken(refreshToken entitys.RefreshToken) (error, entitys.RefreshToken) {
+	error := Connection.Create(&refreshToken).Error
+	return error, refreshToken
 
 }

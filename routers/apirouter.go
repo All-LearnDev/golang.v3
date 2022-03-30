@@ -47,19 +47,12 @@ func InitializeApiMapping(rest *echo.Echo) {
 	tokenGroup.GET("/expire/:access_token", authorController.ExpireToken)
 	tokenGroup.GET("/renew/:refreshToken", authorController.RenewToken)
 
-	// Test - Authentication with token:
-	// Restricted Admin group - Test security :
+	// Access with JWT + Role Admin
 	adminGroup := rest.Group("/admin")
-	// Configure middleware with the custom claims type
-	/*config := middleware.JWTConfig{
-		Claims:     &utils.JwtCustomClaims{},
-		SigningKey: []byte("konmeo12397"),
-	}*/
-	//adminGroup.Use(middleware.JWTWithConfig(config))
 	adminGroup.Use(utils.AdminProcess)
 	adminGroup.GET("/list/book", bookController.ListBook)
 
-	// Test many to many in GoRM: Dev - Project
+	// Access with JWT + Role Viewer
 	developerGroup := rest.Group("/developer")
 	developerGroup.Use(utils.ViewerProcess)
 	developerGroup.GET("/list", developer.ListDevelopers)
