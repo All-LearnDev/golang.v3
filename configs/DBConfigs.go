@@ -25,6 +25,7 @@ func AutoMigrate() {
 		entitys.RefreshToken{},
 		entitys.Project{},
 		entitys.Developer{},
+		entitys.Roles{},
 	)
 
 }

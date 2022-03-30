@@ -3,7 +3,9 @@ package controller
 import (
 	"net/http"
 	"projects/entitys"
+	"projects/forms"
 	"projects/repositorys/authorRepository"
+	"strconv"
 
 	"projects/utils"
 
@@ -21,9 +23,9 @@ func Login(c echo.Context) error {
 		return echo.ErrUnauthorized
 	}
 	// Generate access_token
-	er, accessToken := utils.GenerateJWT(username, true)
+	er, accessToken := utils.GenerateJWT(username, user.Roles)
 	// Generate refreshToken
-	er, refreshToken := utils.GenerateRefreshToken(username, true)
+	er, refreshToken := utils.GenerateRefreshToken(username, user.Roles)
 	// Save refreshToken to DB:
 	authorRepository.SaveRefreshToken(refreshToken)
 	if er != nil {
@@ -36,6 +38,20 @@ func Login(c echo.Context) error {
 		})
 	}
 
+}
+
+func AddRolesToUser(c echo.Context) error {
+
+	var userRole forms.FUserRole
+	c.Bind(&userRole)
+	user_id := userRole.UserId
+	// Finf user by id:
+	user := authorRepository.FindUserById(user_id)
+	// Save roles to DB:
+	user = authorRepository.AddRolesToUser(user, userRole.Roles)
+	return c.JSON(http.StatusOK, echo.Map{
+		"user": user,
+	})
 }
 
 func Register(c echo.Context) error {
@@ -51,10 +67,10 @@ func Register(c echo.Context) error {
 	var newUser entitys.JUser
 	newUser = authorRepository.AddJUser(username, email, password)
 	// Gen token to return for view:
-	_, accessToken := utils.GenerateJWT(username, true)
+	_, accessToken := utils.GenerateJWT(username, user.Roles)
 	// Generate access_token
 	// Generate refreshToken
-	_, refreshToken := utils.GenerateRefreshToken(username, true)
+	_, refreshToken := utils.GenerateRefreshToken(username, user.Roles)
 	// Save refreshToken to DB:
 	authorRepository.SaveRefreshToken(refreshToken)
 	return c.JSON(http.StatusOK, echo.Map{
@@ -74,16 +90,20 @@ func Logout(c echo.Context) error {
 func RenewToken(c echo.Context) error {
 	var return_access_token string
 	var return_refresh_token entitys.RefreshToken
+
 	refreshToken := c.Param("refreshToken")
+	user_id := c.Param("user_id")
+	intVar, _ := strconv.Atoi(user_id)
+	user := authorRepository.FindUserById(intVar)
 
 	if utils.ValidToken(refreshToken) {
 		if utils.ExpiredToken(refreshToken) {
 			refreshTokenObject := authorRepository.FindRefreshTokenByToken(refreshToken)
 			if refreshTokenObject.UserName != "" {
 				// Generate access_token
-				_, return_access_token = utils.GenerateJWT(refreshTokenObject.UserName, true)
+				_, return_access_token = utils.GenerateJWT(refreshTokenObject.UserName, user.Roles)
 				// Generate refreshToken
-				_, return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserName, true)
+				_, return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserName, user.Roles)
 				// Save refreshToken to DB:
 				authorRepository.SaveRefreshToken(return_refresh_token)
 			}

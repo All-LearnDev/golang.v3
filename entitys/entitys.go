@@ -13,6 +13,13 @@ type Author struct {
 	Address string
 }
 
+type Roles struct {
+	//gorm.Model
+	ID      int
+	Name    string
+	JUserId int
+}
+
 type User struct {
 	//gorm.Model
 	Id     int
@@ -33,6 +40,7 @@ type JUser struct {
 	Name     string
 	Email    string
 	Password string `json:"-"`
+	Roles    []Roles
 }
 
 type RefreshToken struct {

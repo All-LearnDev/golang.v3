@@ -13,12 +13,12 @@ import (
 // jwtCustomClaims are custom claims extending default ones.
 // See https://github.com/golang-jwt/jwt for more examples
 type JwtCustomClaims struct {
-	Name  string `json:"name"`
-	Admin bool   `json:"admin"`
+	Name  string          `json:"name"`
+	Roles []entitys.Roles `json:"roles"`
 	jwt.StandardClaims
 }
 
-func GenerateRefreshToken(userName string, role bool) (error, entitys.RefreshToken) {
+func GenerateRefreshToken(userName string, roles []entitys.Roles) (error, entitys.RefreshToken) {
 	// Set custom claims
 	var refreshToken entitys.RefreshToken
 	refreshToken.UserName = userName
@@ -26,7 +26,7 @@ func GenerateRefreshToken(userName string, role bool) (error, entitys.RefreshTok
 	refreshToken.ExpiresAt = expiresAt
 	claims := &JwtCustomClaims{
 		userName,
-		true,
+		roles,
 		jwt.StandardClaims{
 			ExpiresAt: expiresAt,
 		},
@@ -42,13 +42,13 @@ func GenerateRefreshToken(userName string, role bool) (error, entitys.RefreshTok
 	}
 
 }
-func GenerateJWT(userName string, role bool) (error, string) {
+func GenerateJWT(userName string, roles []entitys.Roles) (error, string) {
 	// Set custom claims
 	claims := &JwtCustomClaims{
 		userName,
-		true,
+		roles,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
 		},
 	}
 	// Create token with claims
@@ -76,6 +76,20 @@ func ParseToken(c echo.Context) error {
 		fmt.Println(err)
 	}
 	return c.String(http.StatusOK, userName)
+}
+
+func GetRolesFromToken(tokenString string) entitys.JUser {
+	var user entitys.JUser
+	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte("konmeo12397"), nil
+	})
+	if claims, ok := token.Claims.(*JwtCustomClaims); ok && token.Valid {
+		user.Name = claims.Name
+		user.Roles = claims.Roles
+	} else {
+		fmt.Println(err)
+	}
+	return user
 }
 
 func ValidToken(validToken string) bool {

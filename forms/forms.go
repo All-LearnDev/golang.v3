@@ -19,3 +19,12 @@ type FDeveloper struct {
 	Age      int        `json:"age" `
 	Projects []FProject `json:"projects"`
 }
+
+type FUserRole struct {
+	UserId int    `json:"id" `
+	Roles  []Role `json:"roles" `
+}
+type Role struct {
+	Id   int    `json:"id" `
+	Name string `json:"name" `
+}

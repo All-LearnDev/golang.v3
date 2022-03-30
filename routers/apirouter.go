@@ -37,6 +37,9 @@ func InitializeApiMapping(rest *echo.Echo) {
 	authGroup.GET("/login", authorController.Login)
 	authGroup.GET("/logout", authorController.Logout)
 	authGroup.GET("/register", authorController.Register)
+	authGroup.POST("/register/user/roles", authorController.AddRolesToUser)
+
+	// Add reset password:
 
 	// Working with JWT :
 	tokenGroup := rest.Group("/token")
@@ -48,15 +51,17 @@ func InitializeApiMapping(rest *echo.Echo) {
 	// Restricted Admin group - Test security :
 	adminGroup := rest.Group("/admin")
 	// Configure middleware with the custom claims type
-	config := middleware.JWTConfig{
+	/*config := middleware.JWTConfig{
 		Claims:     &utils.JwtCustomClaims{},
 		SigningKey: []byte("konmeo12397"),
-	}
-	adminGroup.Use(middleware.JWTWithConfig(config))
+	}*/
+	//adminGroup.Use(middleware.JWTWithConfig(config))
+	adminGroup.Use(utils.AdminProcess)
 	adminGroup.GET("/list/book", bookController.ListBook)
 
 	// Test many to many in GoRM: Dev - Project
 	developerGroup := rest.Group("/developer")
+	developerGroup.Use(utils.ViewerProcess)
 	developerGroup.GET("/list", developer.ListDevelopers)
 	developerGroup.POST("/add", developer.AddNewDeveloper)
 	developerGroup.GET("/getbyid/:id", developer.GetDeveloperById)
