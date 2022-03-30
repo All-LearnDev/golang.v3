@@ -4,10 +4,9 @@ import (
 	"net/http"
 	"projects/entitys"
 	"projects/forms"
-	"projects/repositorys/authorRepository"
-	"strconv"
-
+	"projects/services/authorService"
 	"projects/utils"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,25 +17,21 @@ func Login(c echo.Context) error {
 
 	// Throws unauthorized error
 	var user entitys.JUser
-	_, user = authorRepository.FindUserByUserName(username)
+	_, user = authorService.FindUserByUserName(username)
 	if (username != user.Name) || (utils.CheckPasswordHash(password, user.Password) != true) {
 		return echo.ErrUnauthorized
 	}
 	// Generate access_token
-	er, accessToken := utils.GenerateJWT(username, user.Roles)
+	accessToken := utils.GenerateJWT(username, user.Roles)
 	// Generate refreshToken
-	er, refreshToken := utils.GenerateRefreshToken(username, user.Roles)
+	refreshToken := utils.GenerateRefreshToken(username, user.Roles)
 	// Save refreshToken to DB:
-	authorRepository.SaveRefreshToken(refreshToken)
-	if er != nil {
-		return er
-	} else {
-		return c.JSON(http.StatusOK, echo.Map{
-			"user":          user,
-			"access_token":  accessToken,
-			"refresh_token": refreshToken.Token,
-		})
-	}
+	authorService.SaveRefreshToken(refreshToken)
+	return c.JSON(http.StatusOK, echo.Map{
+		"user":          user,
+		"access_token":  accessToken,
+		"refresh_token": refreshToken.Token,
+	})
 
 }
 
@@ -46,9 +41,9 @@ func AddRolesToUser(c echo.Context) error {
 	c.Bind(&userRole)
 	user_id := userRole.UserId
 	// Finf user by id:
-	_, user := authorRepository.FindUserById(user_id)
+	_, user := authorService.FindUserById(user_id)
 	// Save roles to DB:
-	er, user := authorRepository.AddRolesToUser(user, userRole.Roles)
+	er, user := authorService.AddRolesToUser(user, userRole.Roles)
 	if er == nil {
 		return c.JSON(http.StatusOK, echo.Map{
 			"result ": true,
@@ -68,7 +63,7 @@ func Register(c echo.Context) error {
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 	// Check exits user in DB:
-	_, user := authorRepository.FindUserByEmail(email)
+	_, user := authorService.FindUserByEmail(email)
 	if user.Name != "" {
 		return c.JSON(http.StatusBadRequest, echo.Map{
 			"result ": false,
@@ -78,14 +73,14 @@ func Register(c echo.Context) error {
 	}
 	// Register user
 	var newUser entitys.JUser
-	_, newUser = authorRepository.AddJUser(username, email, password)
+	newUser = authorService.AddJUser(username, email, password)
 	// Gen token to return for view:
 	// Generate access_token
-	_, accessToken := utils.GenerateJWT(username, user.Roles)
+	accessToken := utils.GenerateJWT(username, user.Roles)
 	// Generate refreshToken
-	_, refreshToken := utils.GenerateRefreshToken(username, user.Roles)
+	refreshToken := utils.GenerateRefreshToken(username, user.Roles)
 	// Save refreshToken to DB:
-	authorRepository.SaveRefreshToken(refreshToken)
+	authorService.SaveRefreshToken(refreshToken)
 	return c.JSON(http.StatusOK, echo.Map{
 		"user":          newUser,
 		"access_token":  accessToken,
@@ -108,18 +103,18 @@ func RenewToken(c echo.Context) error {
 	refreshToken := c.Param("refreshToken")
 	user_id := c.Param("user_id")
 	intVar, _ := strconv.Atoi(user_id)
-	_, user := authorRepository.FindUserById(intVar)
+	_, user := authorService.FindUserById(intVar)
 
 	if utils.ValidToken(refreshToken) {
 		if utils.ExpiredToken(refreshToken) {
-			_, refreshTokenObject := authorRepository.FindRefreshTokenByToken(refreshToken)
+			_, refreshTokenObject := authorService.FindRefreshTokenByToken(refreshToken)
 			if refreshTokenObject.UserName != "" {
 				// Generate access_token
-				_, return_access_token = utils.GenerateJWT(refreshTokenObject.UserName, user.Roles)
+				return_access_token = utils.GenerateJWT(refreshTokenObject.UserName, user.Roles)
 				// Generate refreshToken
-				_, return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserName, user.Roles)
+				return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserName, user.Roles)
 				// Save refreshToken to DB:
-				authorRepository.SaveRefreshToken(return_refresh_token)
+				authorService.SaveRefreshToken(return_refresh_token)
 			}
 
 		}

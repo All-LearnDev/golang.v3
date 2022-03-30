@@ -11,7 +11,13 @@ import (
 func AdminProcess(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		auth := c.Request().Header.Get("Authorization")
+		if auth == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid token !")
+		}
 		jwt := strings.Split(auth, " ")[1]
+		if ValidToken(jwt) == false {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid token !")
+		}
 		user := GetRolesFromToken(jwt)
 		//println(user.Roles[0].Name)
 		//println(user.Roles[1].Name)
@@ -28,7 +34,13 @@ func AdminProcess(next echo.HandlerFunc) echo.HandlerFunc {
 func ViewerProcess(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		auth := c.Request().Header.Get("Authorization")
+		if auth == "" {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid token !")
+		}
 		jwt := strings.Split(auth, " ")[1]
+		if ValidToken(jwt) == false {
+			return echo.NewHTTPError(http.StatusBadRequest, "Invalid token !")
+		}
 		user := GetRolesFromToken(jwt)
 		//println(user.Roles[0].Name)
 		//	println(user.Roles[1].Name)

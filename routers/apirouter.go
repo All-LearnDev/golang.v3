@@ -36,7 +36,7 @@ func InitializeApiMapping(rest *echo.Echo) {
 	authGroup := rest.Group("/author")
 	authGroup.GET("/login", authorController.Login)
 	authGroup.GET("/logout", authorController.Logout)
-	authGroup.GET("/register", authorController.Register)
+	authGroup.POST("/register", authorController.Register)
 	authGroup.POST("/register/user/roles", authorController.AddRolesToUser)
 
 	// Add reset password:

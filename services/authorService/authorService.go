@@ -6,7 +6,7 @@ import (
 	"projects/repositorys/authorRepository"
 )
 
-func AddJUser(name string, email string, password string) (error, entitys.JUser) {
+func AddJUser(name string, email string, password string) entitys.JUser {
 	return authorRepository.AddJUser(name, email, password)
 
 }

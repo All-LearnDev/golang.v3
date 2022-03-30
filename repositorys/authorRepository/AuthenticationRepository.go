@@ -11,12 +11,13 @@ import (
 
 var Connection = configs.GetConnection()
 
-func AddJUser(name string, email string, password string) (error, entitys.JUser) {
+func AddJUser(name string, email string, password string) entitys.JUser {
 	var hash string
 	hash, _ = utils.HashPassword(password)
+	print(" name", name)
 	user := entitys.JUser{Name: name, Email: email, Password: hash}
-	error := Connection.Create(&user).Error
-	return error, user
+	Connection.Create(&user)
+	return user
 
 }
 
