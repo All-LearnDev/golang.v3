@@ -11,7 +11,6 @@ func FindProjectById(Id int) entitys.Project {
 
 	var project entitys.Project
 	Connection.Where("Id = ?", Id).Preload("Projects").First(&project)
-	//Connection.Preload("Images").First(&user)
 	return project
 
 }
@@ -20,7 +19,6 @@ func FindSimpleProjectById(Id int) entitys.Project {
 
 	var project entitys.Project
 	Connection.Where("Id = ?", Id).First(&project)
-	//Connection.Preload("Images").First(&user)
 	return project
 
 }
@@ -40,7 +38,6 @@ func ListEagerProjects() []entitys.Project {
 func DelProjectById(Id int) {
 	var project entitys.Project
 	project = FindProjectById(Id)
-	// Remote relationship
 	Connection.Model(&project).Association("Developers").Clear()
 	Connection.Delete(&entitys.Project{}, Id)
 }

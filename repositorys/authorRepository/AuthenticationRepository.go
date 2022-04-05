@@ -3,51 +3,43 @@ package authorRepository
 import (
 	"projects/configs"
 	"projects/entitys"
-	"projects/forms"
 	"projects/utils"
-
-	"github.com/dranikpg/dto-mapper"
 )
 
 var Connection = configs.GetConnection()
 
-func AddJUser(name string, email string, password string) entitys.JUser {
+func AddUser(name string, email string, password string, image string) (error, entitys.User) {
 	var hash string
 	hash, _ = utils.HashPassword(password)
-	print(" name", name)
-	user := entitys.JUser{Name: name, Email: email, Password: hash}
-	Connection.Create(&user)
-	return user
-
-}
-
-func AddRolesToUser(user entitys.JUser, fRoles []forms.Role) (error, entitys.JUser) {
-	var roles []entitys.Roles
-	mapper := dto.Mapper{}
-	mapper.Map(&roles, fRoles)
-	user.Roles = roles
-	error := Connection.Save(user).Error
+	user := entitys.User{Name: name, Email: email, Password: hash, Image: image}
+	error := Connection.Create(&user).Error
 	return error, user
 
 }
 
-func FindUserByEmail(email string) (error, entitys.JUser) {
+func FindUserByEmail(email string) (error, entitys.User) {
 
-	var user entitys.JUser
-	error := Connection.Where("Email = ?", email).Preload("Roles").First(&user).Error
+	var user entitys.User
+	error := Connection.Where("Email = ?", email).First(&user).Error
 	return error, user
 }
 
-func FindUserById(id int) (error, entitys.JUser) {
+func FindUserById(id int) (error, entitys.User) {
 
-	var user entitys.JUser
-	error := Connection.Where("Id = ?", id).Preload("Roles").First(&user).Error
+	var user entitys.User
+	error := Connection.Where("Id = ?", id).First(&user).Error
 	return error, user
 }
 
-func FindUserByUserName(name string) (error, entitys.JUser) {
-	var user entitys.JUser
-	error := Connection.Where("Name = ?", name).Preload("Roles").First(&user).Error
+func FindUserByUserName(name string) (error, entitys.User) {
+	var user entitys.User
+	error := Connection.Where("Name = ?", name).First(&user).Error
+	return error, user
+}
+
+func FindUserByUserEmail(email string) (error, entitys.User) {
+	var user entitys.User
+	error := Connection.Where("Email = ?", email).First(&user).Error
 	return error, user
 }
 

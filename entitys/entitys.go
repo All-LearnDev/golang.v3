@@ -1,46 +1,23 @@
 package entitys
 
-type Book struct {
-	//gorm.Model
-	ID         int
-	Name       string
-	AuthorName string
-}
-type Author struct {
-	//gorm.Model
-	ID      int
-	Name    string
-	Address string
-}
-
-type Roles struct {
-	//gorm.Model
-	ID      int
-	Name    string
-	JUserId int
-}
+import "time"
 
 type User struct {
-	//gorm.Model
-	Id     int
-	Name   string
-	Email  string
-	Images []Images
+	Id        int
+	Name      string
+	Email     string
+	Password  string `json:"-"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Image     string
 }
 
 type Images struct {
-	//gorm.Model
-	Id       int
-	Filename string
-	UserID   int
-}
-
-type JUser struct {
-	Id       int
-	Name     string
-	Email    string
-	Password string `json:"-"`
-	Roles    []Roles
+	Id        int
+	Filename  string
+	UserID    int
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type RefreshToken struct {
@@ -48,17 +25,25 @@ type RefreshToken struct {
 	UserName  string
 	ExpiresAt int64
 	Token     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 type Project struct {
-	ID         int
-	Name       string
-	Customer   string
-	Developers []Developer `gorm:"many2many:dev_project;"`
+	ID        int
+	Name      string
+	Customer  string
+	Tasks     []Tasks `gorm:"many2many:dev_project;"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
-
-type Developer struct {
-	Id       int
-	Name     string
-	Age      int
-	Projects []Project `gorm:"many2many:dev_project;" `
+type Tasks struct {
+	Id              int
+	subject         string
+	description     string
+	ProjectId       int
+	AssignToUserId  int
+	DuaDate         time.Time
+	CreatedByUserId int
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }

@@ -29,7 +29,7 @@ func Upload(c echo.Context) (error, []entitys.Images) {
 		var myfile entitys.Images
 		myfile.Filename = file.Filename
 		images = append(images, myfile)
-		dst, err := os.Create(filepath.Join("D:/go/images", filepath.Base(file.Filename)))
+		dst, err := os.Create(filepath.Join("D:/go/Store", filepath.Base(file.Filename)))
 		if err != nil {
 			return err, nil
 		}
@@ -42,4 +42,31 @@ func Upload(c echo.Context) (error, []entitys.Images) {
 
 	}
 	return nil, images
+}
+
+func SingleFileUpload(c echo.Context) (error, string) {
+	var imageName string = ""
+	// Source
+	file, err := c.FormFile("image")
+	if err != nil {
+		return err, imageName
+	}
+	src, err := file.Open()
+	if err != nil {
+		return err, imageName
+	}
+	defer src.Close()
+	// Destination
+	imageName = file.Filename
+	dst, err := os.Create(filepath.Join("D:/go/Store", filepath.Base(file.Filename)))
+	if err != nil {
+		return err, imageName
+	}
+	defer dst.Close()
+
+	// Copy
+	if _, err = io.Copy(dst, src); err != nil {
+		return err, imageName
+	}
+	return nil, imageName
 }

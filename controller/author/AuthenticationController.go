@@ -3,31 +3,36 @@ package controller
 import (
 	"net/http"
 	"projects/entitys"
+	"projects/exceptions"
 	"projects/forms"
 	"projects/services/authorService"
 	"projects/utils"
-	"strconv"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
 func Login(c echo.Context) error {
-	username := c.FormValue("username")
+	email := c.FormValue("email")
 	password := c.FormValue("password")
 
 	// Throws unauthorized error
-	var user entitys.JUser
-	_, user = authorService.FindUserByUserName(username)
-	if (username != user.Name) || (utils.CheckPasswordHash(password, user.Password) != true) {
-		return echo.ErrUnauthorized
+	var user entitys.User
+	_, user = authorService.FindUserByUserEmail(email)
+	if (email != user.Email) || (utils.CheckPasswordHash(password, user.Password) != true) {
+		return exceptions.IncorrectUserNamePasswordException(c)
 	}
 	// Generate access_token
-	accessToken := utils.GenerateJWT(username, user.Roles)
+	accessToken := utils.GenerateJWT(user.Name)
 	// Generate refreshToken
-	refreshToken := utils.GenerateRefreshToken(username, user.Roles)
+	refreshToken := utils.GenerateRefreshToken(user.Name)
 	// Save refreshToken to DB:
-	authorService.SaveRefreshToken(refreshToken)
+	error, refreshToken := authorService.SaveRefreshToken(refreshToken)
+	if error != nil {
+		return exceptions.DatabaseConnectionException(error, c)
+	}
 	return c.JSON(http.StatusOK, echo.Map{
+		"result":        true,
 		"user":          user,
 		"access_token":  accessToken,
 		"refresh_token": refreshToken.Token,
@@ -35,53 +40,47 @@ func Login(c echo.Context) error {
 
 }
 
-func AddRolesToUser(c echo.Context) error {
+func Register(c echo.Context) error {
+	var fuser forms.FUser
+	fuser.Name = c.FormValue("username")
+	fuser.Email = c.FormValue("email")
+	fuser.Password = c.FormValue("password")
+	storeErr, imageName := utils.SingleFileUpload(c)
+	if storeErr != nil {
+		return exceptions.StoreFileException(storeErr, c)
+	}
+	var validate = validator.New()
+	err := validate.Struct(fuser)
+	if err != nil {
+		listError := utils.Validate(fuser)
+		return c.JSON(http.StatusBadRequest, echo.Map{
+			"result": false,
+			"error":  listError,
+		})
 
-	var userRole forms.FUserRole
-	c.Bind(&userRole)
-	user_id := userRole.UserId
-	// Finf user by id:
-	_, user := authorService.FindUserById(user_id)
-	// Save roles to DB:
-	er, user := authorService.AddRolesToUser(user, userRole.Roles)
-	if er == nil {
-		return c.JSON(http.StatusOK, echo.Map{
-			"result ": true,
-			"user":    user,
-		})
-	} else {
-		return c.JSON(http.StatusOK, echo.Map{
-			"result ": false,
-			"user":    user,
-		})
 	}
 
-}
-
-func Register(c echo.Context) error {
-	username := c.FormValue("username")
-	email := c.FormValue("email")
-	password := c.FormValue("password")
+	fuser.Image = imageName
 	// Check exits user in DB:
-	_, user := authorService.FindUserByEmail(email)
+	_, user := authorService.FindUserByEmail(fuser.Email)
 	if user.Name != "" {
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"result ": false,
-			"message": "Email exits in DB",
-		})
-
+		return exceptions.EmailExistsDBException(c)
 	}
 	// Register user
-	var newUser entitys.JUser
-	newUser = authorService.AddJUser(username, email, password)
+	var newUser entitys.User
+	error, newUser := authorService.AddUser(fuser.Name, fuser.Email, fuser.Password, fuser.Image)
+	if error != nil {
+		return exceptions.DatabaseConnectionException(error, c)
+	}
 	// Gen token to return for view:
 	// Generate access_token
-	accessToken := utils.GenerateJWT(username, user.Roles)
+	accessToken := utils.GenerateJWT(fuser.Name)
 	// Generate refreshToken
-	refreshToken := utils.GenerateRefreshToken(username, user.Roles)
+	refreshToken := utils.GenerateRefreshToken(fuser.Name)
 	// Save refreshToken to DB:
 	authorService.SaveRefreshToken(refreshToken)
 	return c.JSON(http.StatusOK, echo.Map{
+		"result":        true,
 		"user":          newUser,
 		"access_token":  accessToken,
 		"refresh_token": refreshToken.Token,
@@ -89,30 +88,23 @@ func Register(c echo.Context) error {
 
 }
 
-func Logout(c echo.Context) error {
-	// Delete refresh_token and access_token
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": nil,
-	})
-}
-
 func RenewToken(c echo.Context) error {
 	var return_access_token string
 	var return_refresh_token entitys.RefreshToken
 
 	refreshToken := c.Param("refreshToken")
-	user_id := c.Param("user_id")
-	intVar, _ := strconv.Atoi(user_id)
-	_, user := authorService.FindUserById(intVar)
+	//user_id := c.Param("user_id")
+	//intVar, _ := strconv.Atoi(user_id)
+	//_, user := authorService.FindUserById(intVar)
 
 	if utils.ValidToken(refreshToken) {
 		if utils.ExpiredToken(refreshToken) {
 			_, refreshTokenObject := authorService.FindRefreshTokenByToken(refreshToken)
 			if refreshTokenObject.UserName != "" {
 				// Generate access_token
-				return_access_token = utils.GenerateJWT(refreshTokenObject.UserName, user.Roles)
+				return_access_token = utils.GenerateJWT(refreshTokenObject.UserName)
 				// Generate refreshToken
-				return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserName, user.Roles)
+				return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserName)
 				// Save refreshToken to DB:
 				authorService.SaveRefreshToken(return_refresh_token)
 			}
@@ -126,24 +118,6 @@ func RenewToken(c echo.Context) error {
 			"refresh_token": return_refresh_token.Token,
 		})
 	} else {
-		return c.String(http.StatusBadRequest, " Invalid token ! ")
+		return exceptions.InValidTokenException(c)
 	}
-}
-
-func ExpireToken(c echo.Context) error {
-	access_token := c.Param("access_token")
-	flag := utils.ExpiredToken(access_token)
-	return c.JSON(http.StatusOK, echo.Map{
-		"token":        access_token,
-		"expire_token": flag,
-	})
-}
-
-func ValidToken(c echo.Context) error {
-	access_token := c.Param("access_token")
-	result := utils.ValidToken(access_token)
-	return c.JSON(http.StatusOK, echo.Map{
-		"token":        access_token,
-		"expire_token": result,
-	})
 }

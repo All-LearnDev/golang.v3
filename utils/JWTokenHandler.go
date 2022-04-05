@@ -10,13 +10,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var secretKey string = "Y29uZHVvbmdzdWFlbWRpODkzNA=="
+
 type JwtCustomClaims struct {
-	Name  string          `json:"name"`
-	Roles []entitys.Roles `json:"roles"`
+	Name string `json:"name"`
 	jwt.StandardClaims
 }
 
-func GenerateRefreshToken(userName string, roles []entitys.Roles) entitys.RefreshToken {
+func GenerateRefreshToken(userName string) entitys.RefreshToken {
 	// Set custom claims
 	var refreshToken entitys.RefreshToken
 	refreshToken.UserName = userName
@@ -24,14 +25,13 @@ func GenerateRefreshToken(userName string, roles []entitys.Roles) entitys.Refres
 	refreshToken.ExpiresAt = expiresAt
 	claims := &JwtCustomClaims{
 		userName,
-		roles,
 		jwt.StandardClaims{
 			ExpiresAt: expiresAt,
 		},
 	}
 	// Create token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	result, err := token.SignedString([]byte("Y29uZHVvbmdzdWFlbWRpODkzNA=="))
+	result, err := token.SignedString([]byte(secretKey))
 	refreshToken.Token = result
 	if err != nil {
 		return entitys.RefreshToken{}
@@ -40,11 +40,10 @@ func GenerateRefreshToken(userName string, roles []entitys.Roles) entitys.Refres
 	}
 
 }
-func GenerateJWT(userName string, roles []entitys.Roles) string {
+func GenerateJWT(userName string) string {
 	// Set custom claims
 	claims := &JwtCustomClaims{
 		userName,
-		roles,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
 		},
@@ -53,7 +52,7 @@ func GenerateJWT(userName string, roles []entitys.Roles) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Generate encoded token and send it as response.
-	result, _ := token.SignedString([]byte("Y29uZHVvbmdzdWFlbWRpODkzNA=="))
+	result, _ := token.SignedString([]byte(secretKey))
 
 	return result
 
@@ -63,7 +62,7 @@ func ParseToken(c echo.Context) error {
 	var userName string
 	tokenString := c.Param("token")
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("Y29uZHVvbmdzdWFlbWRpODkzNA=="), nil
+		return []byte(secretKey), nil
 	})
 	if claims, ok := token.Claims.(*JwtCustomClaims); ok && token.Valid {
 		userName = claims.Name
@@ -73,14 +72,13 @@ func ParseToken(c echo.Context) error {
 	return c.String(http.StatusOK, userName)
 }
 
-func GetRolesFromToken(tokenString string) entitys.JUser {
-	var user entitys.JUser
+func GetUserNameFromToken(tokenString string) entitys.User {
+	var user entitys.User
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("Y29uZHVvbmdzdWFlbWRpODkzNA=="), nil
+		return []byte(secretKey), nil
 	})
 	if claims, ok := token.Claims.(*JwtCustomClaims); ok && token.Valid {
 		user.Name = claims.Name
-		user.Roles = claims.Roles
 	} else {
 		fmt.Println(err)
 	}
@@ -90,7 +88,7 @@ func GetRolesFromToken(tokenString string) entitys.JUser {
 func ValidToken(validToken string) bool {
 
 	token, er := jwt.ParseWithClaims(validToken, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("Y29uZHVvbmdzdWFlbWRpODkzNA=="), nil
+		return []byte(secretKey), nil
 	})
 	if er != nil {
 		return false
@@ -101,7 +99,7 @@ func ValidToken(validToken string) bool {
 func ExpiredToken(tokenString string) bool {
 	var expireTime int64
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte("Y29uZHVvbmdzdWFlbWRpODkzNA=="), nil
+		return []byte(secretKey), nil
 	})
 	if claims, ok := token.Claims.(*JwtCustomClaims); ok && token.Valid {
 		expireTime = claims.StandardClaims.ExpiresAt

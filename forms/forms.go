@@ -1,5 +1,13 @@
 package forms
 
+type FUser struct {
+	ID       int
+	Name     string ` validate:"required"`
+	Email    string ` validate:"required" `
+	Password string ` validate:"required" `
+	Image    string ` validate:"required"`
+}
+
 type FBook struct {
 	ID         int    `json:"id" `
 	Name       string `json:"name" validate:"required"`
@@ -18,13 +26,4 @@ type FDeveloper struct {
 	Name     string     `json:"name" `
 	Age      int        `json:"age" `
 	Projects []FProject `json:"projects"`
-}
-
-type FUserRole struct {
-	UserId int    `json:"id" `
-	Roles  []Role `json:"roles" `
-}
-type Role struct {
-	Id   int    `json:"id" `
-	Name string `json:"name" `
 }

@@ -2,30 +2,29 @@ package authorService
 
 import (
 	"projects/entitys"
-	"projects/forms"
 	"projects/repositorys/authorRepository"
 )
 
-func AddJUser(name string, email string, password string) entitys.JUser {
-	return authorRepository.AddJUser(name, email, password)
+func AddUser(name string, email string, password string, image string) (error, entitys.User) {
+	return authorRepository.AddUser(name, email, password, image)
 
 }
 
-func AddRolesToUser(user entitys.JUser, fRoles []forms.Role) (error, entitys.JUser) {
-	return authorRepository.AddRolesToUser(user, fRoles)
-}
-
-func FindUserByEmail(email string) (error, entitys.JUser) {
+func FindUserByEmail(email string) (error, entitys.User) {
 	return authorRepository.FindUserByEmail(email)
 }
 
-func FindUserById(id int) (error, entitys.JUser) {
+func FindUserById(id int) (error, entitys.User) {
 	return authorRepository.FindUserById(id)
 
 }
 
-func FindUserByUserName(name string) (error, entitys.JUser) {
+func FindUserByUserName(name string) (error, entitys.User) {
 	return authorRepository.FindUserByUserName(name)
+}
+
+func FindUserByUserEmail(name string) (error, entitys.User) {
+	return authorRepository.FindUserByUserEmail(name)
 }
 
 func FindRefreshTokenByUserId(Id int) (error, entitys.RefreshToken) {
