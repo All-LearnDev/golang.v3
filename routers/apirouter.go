@@ -22,10 +22,10 @@ func InitializeApiMapping(rest *echo.Echo) {
 	authGroup.GET("/renew/:refreshToken", authorController.RenewToken)
 
 	projectGroup := rest.Group("/project", middlewares.LoginMiddleware)
+	projectGroup.POST("/add", project.AddNewProject)
 	// list/paging?size=3&page=0&sort=-name
 	projectGroup.GET("/list/paging", project.ListProjects)
-	projectGroup.POST("/add", project.AddNewProject)
-	projectGroup.GET("/lazy/findbyid/:id", project.FindSimpleProjectById)
-	projectGroup.GET("/eager/findbyid/:id", project.FindProjectById)
+	//projectGroup.GET("/lazy/findbyid/:id", project.FindSimpleProjectById)
+	//projectGroup.GET("/eager/findbyid/:id", project.FindProjectById)
 
 }
