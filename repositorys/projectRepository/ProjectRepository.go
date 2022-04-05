@@ -10,8 +10,11 @@ import (
 
 var Connection = configs.GetConnection()
 
-func AddNewProject(project forms.FProject) (error, entitys.Project) {
-	newProject := entitys.Project{Name: project.Name, Description: project.Description}
+func AddNewProject(user entitys.User, project forms.FProject) (error, entitys.Project) {
+	newProject := entitys.Project{
+		Name:           project.Name,
+		Description:    project.Description,
+		CreateByUserId: user.Id}
 	error := Connection.Save(&newProject).Error
 	return error, newProject
 }
@@ -21,12 +24,6 @@ func ListProjects() (tx *gorm.DB) {
 	result := Connection.Find(&list)
 	Connection.Find(&list)
 	return result
-}
-
-func ListEagerProjects() []entitys.Project {
-	var list []entitys.Project
-	Connection.Preload("Developers").Find(&list)
-	return list
 }
 
 func FindProjectById(Id int) entitys.Project {
@@ -45,22 +42,9 @@ func FindSimpleProjectById(Id int) entitys.Project {
 
 }
 
-func DelProjectById(Id int) {
-	var project entitys.Project
-	project = FindProjectById(Id)
-	Connection.Model(&project).Association("Developers").Clear()
-	Connection.Delete(&entitys.Project{}, Id)
-}
-
 func UpdateProject(id int, name string, customer string) entitys.Project {
 	project := FindSimpleProjectById(id)
 	project.Name = name
-	Connection.Save(&project)
-	return project
-}
-
-func SaveProject(name string, customer string) entitys.Project {
-	project := entitys.Project{Name: name, Description: customer}
 	Connection.Save(&project)
 	return project
 }

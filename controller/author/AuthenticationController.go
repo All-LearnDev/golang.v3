@@ -28,9 +28,9 @@ func Login(c echo.Context) error {
 			return exceptions.IncorrectUserNamePasswordException(c)
 		}
 		// Generate access_token
-		accessToken := utils.GenerateJWT(user.Name)
+		accessToken := utils.GenerateJWT(user.Id, user.Name)
 		// Generate refreshToken
-		refreshToken := utils.GenerateRefreshToken(user.Name)
+		refreshToken := utils.GenerateRefreshToken(user.Id, user.Name)
 		// Save refreshToken to DB:
 		error, refreshToken := authorService.SaveRefreshToken(refreshToken)
 		if error != nil {
@@ -77,9 +77,9 @@ func Register(c echo.Context) error {
 	}
 	// Gen token to return for view:
 	// Generate access_token
-	accessToken := utils.GenerateJWT(fuser.Name)
+	accessToken := utils.GenerateJWT(user.Id, fuser.Name)
 	// Generate refreshToken
-	refreshToken := utils.GenerateRefreshToken(fuser.Name)
+	refreshToken := utils.GenerateRefreshToken(user.Id, fuser.Name)
 	// Save refreshToken to DB:
 	authorService.SaveRefreshToken(refreshToken)
 	return c.JSON(http.StatusOK, echo.Map{
@@ -105,9 +105,9 @@ func RenewToken(c echo.Context) error {
 			_, refreshTokenObject := authorService.FindRefreshTokenByToken(refreshToken)
 			if refreshTokenObject.UserName != "" {
 				// Generate access_token
-				return_access_token = utils.GenerateJWT(refreshTokenObject.UserName)
+				return_access_token = utils.GenerateJWT(refreshTokenObject.UserId, refreshTokenObject.UserName)
 				// Generate refreshToken
-				return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserName)
+				return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserId, refreshTokenObject.UserName)
 				// Save refreshToken to DB:
 				authorService.SaveRefreshToken(return_refresh_token)
 			}

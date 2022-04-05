@@ -20,7 +20,7 @@ func LoginMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			if utils.ValidToken(jwt) == false {
 				return exceptions.InValidTokenException(c)
 			}
-			user := utils.GetUserNameFromToken(jwt)
+			user := utils.GetUserFromTokden(jwt)
 			if len(user.Name) == 0 {
 				return exceptions.UnauthorizedException(c)
 			}

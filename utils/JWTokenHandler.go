@@ -13,17 +13,19 @@ import (
 var secretKey string = "Y29uZHVvbmdzdWFlbWRpODkzNA=="
 
 type JwtCustomClaims struct {
+	Id   int    `json:"id"`
 	Name string `json:"name"`
 	jwt.StandardClaims
 }
 
-func GenerateRefreshToken(userName string) entitys.RefreshToken {
+func GenerateRefreshToken(Id int, userName string) entitys.RefreshToken {
 	// Set custom claims
 	var refreshToken entitys.RefreshToken
 	refreshToken.UserName = userName
 	expiresAt := time.Now().Add(time.Hour * 12).Unix()
 	refreshToken.ExpiresAt = expiresAt
 	claims := &JwtCustomClaims{
+		Id,
 		userName,
 		jwt.StandardClaims{
 			ExpiresAt: expiresAt,
@@ -40,9 +42,10 @@ func GenerateRefreshToken(userName string) entitys.RefreshToken {
 	}
 
 }
-func GenerateJWT(userName string) string {
+func GenerateJWT(Id int, userName string) string {
 	// Set custom claims
 	claims := &JwtCustomClaims{
+		Id,
 		userName,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
@@ -72,13 +75,14 @@ func ParseToken(c echo.Context) error {
 	return c.String(http.StatusOK, userName)
 }
 
-func GetUserNameFromToken(tokenString string) entitys.User {
+func GetUserFromTokden(tokenString string) entitys.User {
 	var user entitys.User
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
 	})
 	if claims, ok := token.Claims.(*JwtCustomClaims); ok && token.Valid {
 		user.Name = claims.Name
+		user.Id = claims.Id
 	} else {
 		fmt.Println(err)
 	}

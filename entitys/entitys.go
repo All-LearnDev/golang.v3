@@ -3,7 +3,7 @@ package entitys
 import "time"
 
 type User struct {
-	Id        int
+	Id        int `gorm:"primaryKey"`
 	Name      string
 	Email     string
 	Password  string `json:"-"`
@@ -13,7 +13,7 @@ type User struct {
 }
 
 type Images struct {
-	Id        int
+	Id        int `gorm:"primaryKey"`
 	Filename  string
 	UserID    int
 	CreatedAt time.Time
@@ -21,7 +21,7 @@ type Images struct {
 }
 
 type RefreshToken struct {
-	UserId    int
+	UserId    int `gorm:"primaryKey"`
 	UserName  string
 	ExpiresAt int64
 	Token     string
@@ -30,7 +30,7 @@ type RefreshToken struct {
 }
 
 type Project struct {
-	ID             int
+	ID             int `gorm:"primaryKey"`
 	Name           string
 	Description    string
 	CreatedAt      time.Time
@@ -40,7 +40,7 @@ type Project struct {
 	//Tasks       []Tasks   `json:"tasks" `
 }
 type Tasks struct {
-	Id              int
+	Id              int `gorm:"primaryKey"`
 	subject         string
 	description     string
 	ProjectId       int

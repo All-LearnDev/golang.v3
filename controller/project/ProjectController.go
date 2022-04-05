@@ -24,7 +24,7 @@ func AddNewProject(c echo.Context) error {
 		listError := utils.Validate(fproject)
 		return exceptions.ValidationFieldException(listError, c)
 	} else {
-		error, project := projectService.AddNewProject(fproject)
+		error, project := projectService.AddNewProject(fproject, c)
 		if error != nil {
 			return exceptions.DatabaseConnectionException(error, c)
 		} else {
@@ -54,10 +54,4 @@ func FindSimpleProjectById(c echo.Context) error {
 	intVar, _ := strconv.Atoi(id)
 	list := projectRepository.FindSimpleProjectById(intVar)
 	return c.JSON(http.StatusOK, list)
-}
-
-func ListEagerProjects(c echo.Context) error {
-	list := projectService.ListEagerProjects()
-	return c.JSON(http.StatusOK, list)
-
 }
