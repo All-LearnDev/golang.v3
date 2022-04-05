@@ -28,13 +28,16 @@ type RefreshToken struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
 type Project struct {
-	ID        int
-	Name      string
-	Customer  string
-	Tasks     []Tasks `gorm:"many2many:dev_project;"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID             int
+	Name           string
+	Description    string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	CreateByUserId int
+	UpdateByUserId int
+	//Tasks       []Tasks   `json:"tasks" `
 }
 type Tasks struct {
 	Id              int

@@ -3,6 +3,7 @@ package configs
 import (
 	"projects/entitys"
 
+	"github.com/morkid/paginate"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -16,14 +17,21 @@ func GetConnection() *gorm.DB {
 	return db
 
 }
+
+func PaginateConfig() *paginate.Pagination {
+	pg := paginate.New(&paginate.Config{
+		DefaultSize: 3,
+	})
+	return pg
+}
+
 func AutoMigrate() {
 	db := GetConnection()
 	db.AutoMigrate(
 		entitys.User{},
-		entitys.Images{},
 		entitys.RefreshToken{},
 		entitys.Project{},
-		entitys.Images{},
+		entitys.Tasks{},
 	)
 
 }

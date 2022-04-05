@@ -3,9 +3,31 @@ package projectRepository
 import (
 	"projects/configs"
 	"projects/entitys"
+	"projects/forms"
+
+	"gorm.io/gorm"
 )
 
 var Connection = configs.GetConnection()
+
+func AddNewProject(project forms.FProject) (error, entitys.Project) {
+	newProject := entitys.Project{Name: project.Name, Description: project.Description}
+	error := Connection.Save(&newProject).Error
+	return error, newProject
+}
+
+func ListProjects() (tx *gorm.DB) {
+	var list []entitys.Project
+	result := Connection.Find(&list)
+	Connection.Find(&list)
+	return result
+}
+
+func ListEagerProjects() []entitys.Project {
+	var list []entitys.Project
+	Connection.Preload("Developers").Find(&list)
+	return list
+}
 
 func FindProjectById(Id int) entitys.Project {
 
@@ -23,18 +45,6 @@ func FindSimpleProjectById(Id int) entitys.Project {
 
 }
 
-func ListProjects() []entitys.Project {
-	var list []entitys.Project
-	Connection.Find(&list)
-	return list
-}
-
-func ListEagerProjects() []entitys.Project {
-	var list []entitys.Project
-	Connection.Preload("Developers").Find(&list)
-	return list
-}
-
 func DelProjectById(Id int) {
 	var project entitys.Project
 	project = FindProjectById(Id)
@@ -45,13 +55,12 @@ func DelProjectById(Id int) {
 func UpdateProject(id int, name string, customer string) entitys.Project {
 	project := FindSimpleProjectById(id)
 	project.Name = name
-	project.Customer = customer
 	Connection.Save(&project)
 	return project
 }
 
 func SaveProject(name string, customer string) entitys.Project {
-	project := entitys.Project{Name: name, Customer: customer}
+	project := entitys.Project{Name: name, Description: customer}
 	Connection.Save(&project)
 	return project
 }

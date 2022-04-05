@@ -23,7 +23,7 @@ func InitializeApiMapping(rest *echo.Echo) {
 
 	projectGroup := rest.Group("/project", middlewares.LoginMiddleware)
 	projectGroup.GET("/list", project.ListProjects)
-	//projectGroup.GET("/list/eager", project.ListEagerProjects)
+	projectGroup.POST("/add", project.AddNewProject)
 	projectGroup.GET("/lazy/findbyid/:id", project.FindSimpleProjectById)
 	projectGroup.GET("/eager/findbyid/:id", project.FindProjectById)
 

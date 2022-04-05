@@ -1,5 +1,7 @@
 package forms
 
+import "time"
+
 type FUser struct {
 	ID       int
 	Name     string ` validate:"required"`
@@ -13,22 +15,25 @@ type FLogin struct {
 	Password string `json:"password" validate:"required"`
 }
 
-type FBook struct {
-	ID         int    `json:"id" `
-	Name       string `json:"name" validate:"required"`
-	AuthorName string `json:"authorName" validate:"required" `
-}
-
 type FProject struct {
-	ID       int    `json:"id" `
-	Name     string `json:"name" `
-	Customer string `json:"customer" `
-	//developers []FDeveloper `json:"developers"`
+	ID             int       `json:"id" `
+	Name           string    `json:"name" validate:"required" `
+	Description    string    `json:"description" validate:"required"`
+	CreatedAt      time.Time `json:"createdAt" `
+	UpdatedAt      time.Time `json:"updatedAt" `
+	CreateByUserId int
+	UpdateByUserId int
+	//Tasks       []Tasks   `json:"tasks" `
 }
 
-type FDeveloper struct {
-	Id       int        `json:"id" `
-	Name     string     `json:"name" `
-	Age      int        `json:"age" `
-	Projects []FProject `json:"projects"`
+type Tasks struct {
+	Id              int
+	subject         string
+	description     string
+	ProjectId       int
+	AssignToUserId  int
+	DuaDate         time.Time
+	CreatedByUserId int
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }
