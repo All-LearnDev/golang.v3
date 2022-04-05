@@ -2,6 +2,7 @@ package exceptions
 
 import (
 	"net/http"
+	"projects/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -13,6 +14,7 @@ const DATABASE_CONNECTION_ERROR string = "Database connection error"
 const EMAIL_EXIST string = "Email exits in DB"
 const UN_AUTHORIZED = "Un Authorized"
 const IN_VALID_USERNAME_PASSWORD = "User name or password is incorrect"
+const VALIDATION_EXCEPTION string = "Validation exception"
 
 func RecordNotFoundException(c echo.Context) error {
 
@@ -74,6 +76,16 @@ func StoreFileException(storeErr error, c echo.Context) error {
 		"result":  false,
 		"message": FILE_NOT_FOUND,
 		"error":   storeErr.Error(),
+	})
+
+}
+
+func ValidationFieldException(error []utils.FieldError, c echo.Context) error {
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"result":  false,
+		"message": VALIDATION_EXCEPTION,
+		"error":   error,
 	})
 
 }

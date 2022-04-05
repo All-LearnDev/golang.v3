@@ -13,30 +13,36 @@ import (
 )
 
 func Login(c echo.Context) error {
-	email := c.FormValue("email")
-	password := c.FormValue("password")
-
-	// Throws unauthorized error
-	var user entitys.User
-	_, user = authorService.FindUserByUserEmail(email)
-	if (email != user.Email) || (utils.CheckPasswordHash(password, user.Password) != true) {
-		return exceptions.IncorrectUserNamePasswordException(c)
+	var fuser forms.FLogin
+	c.Bind(&fuser)
+	var validate = validator.New()
+	err := validate.Struct(fuser)
+	if err != nil {
+		listError := utils.Validate(fuser)
+		return exceptions.ValidationFieldException(listError, c)
+	} else {
+		// Throws unauthorized error
+		var user entitys.User
+		_, user = authorService.FindUserByUserEmail(fuser.Email)
+		if (fuser.Email != user.Email) || (utils.CheckPasswordHash(fuser.Password, user.Password) != true) {
+			return exceptions.IncorrectUserNamePasswordException(c)
+		}
+		// Generate access_token
+		accessToken := utils.GenerateJWT(user.Name)
+		// Generate refreshToken
+		refreshToken := utils.GenerateRefreshToken(user.Name)
+		// Save refreshToken to DB:
+		error, refreshToken := authorService.SaveRefreshToken(refreshToken)
+		if error != nil {
+			return exceptions.DatabaseConnectionException(error, c)
+		}
+		return c.JSON(http.StatusOK, echo.Map{
+			"result":        true,
+			"user":          user,
+			"access_token":  accessToken,
+			"refresh_token": refreshToken.Token,
+		})
 	}
-	// Generate access_token
-	accessToken := utils.GenerateJWT(user.Name)
-	// Generate refreshToken
-	refreshToken := utils.GenerateRefreshToken(user.Name)
-	// Save refreshToken to DB:
-	error, refreshToken := authorService.SaveRefreshToken(refreshToken)
-	if error != nil {
-		return exceptions.DatabaseConnectionException(error, c)
-	}
-	return c.JSON(http.StatusOK, echo.Map{
-		"result":        true,
-		"user":          user,
-		"access_token":  accessToken,
-		"refresh_token": refreshToken.Token,
-	})
 
 }
 
@@ -46,6 +52,7 @@ func Register(c echo.Context) error {
 	fuser.Email = c.FormValue("email")
 	fuser.Password = c.FormValue("password")
 	storeErr, imageName := utils.SingleFileUpload(c)
+	fuser.Image = imageName
 	if storeErr != nil {
 		return exceptions.StoreFileException(storeErr, c)
 	}
@@ -53,11 +60,7 @@ func Register(c echo.Context) error {
 	err := validate.Struct(fuser)
 	if err != nil {
 		listError := utils.Validate(fuser)
-		return c.JSON(http.StatusBadRequest, echo.Map{
-			"result": false,
-			"error":  listError,
-		})
-
+		return exceptions.ValidationFieldException(listError, c)
 	}
 
 	fuser.Image = imageName

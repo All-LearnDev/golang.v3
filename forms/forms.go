@@ -8,6 +8,11 @@ type FUser struct {
 	Image    string ` validate:"required"`
 }
 
+type FLogin struct {
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
 type FBook struct {
 	ID         int    `json:"id" `
 	Name       string `json:"name" validate:"required"`
