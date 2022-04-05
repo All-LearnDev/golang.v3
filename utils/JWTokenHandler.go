@@ -7,14 +7,16 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 var secretKey string = "Y29uZHVvbmdzdWFlbWRpODkzNA=="
 
 type JwtCustomClaims struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id   int       `json:"id"`
+	Name string    `json:"name"`
+	Uuid uuid.UUID `json:"uuid"`
 	jwt.StandardClaims
 }
 
@@ -22,11 +24,13 @@ func GenerateRefreshToken(Id int, userName string) entitys.RefreshToken {
 	// Set custom claims
 	var refreshToken entitys.RefreshToken
 	refreshToken.UserName = userName
+	uuid := uuid.New()
 	expiresAt := time.Now().Add(time.Hour * 12).Unix()
 	refreshToken.ExpiresAt = expiresAt
 	claims := &JwtCustomClaims{
 		Id,
 		userName,
+		uuid,
 		jwt.StandardClaims{
 			ExpiresAt: expiresAt,
 		},
@@ -43,10 +47,12 @@ func GenerateRefreshToken(Id int, userName string) entitys.RefreshToken {
 
 }
 func GenerateJWT(Id int, userName string) string {
+	uuid := uuid.New()
 	// Set custom claims
 	claims := &JwtCustomClaims{
 		Id,
 		userName,
+		uuid,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 5).Unix(),
 		},
@@ -84,6 +90,7 @@ func GetUserFromTokden(tokenString string) entitys.User {
 		user.Name = claims.Name
 		user.Id = claims.Id
 	} else {
+		//return exceptions.InValidTokenException(c)
 		fmt.Println(err)
 	}
 	return user

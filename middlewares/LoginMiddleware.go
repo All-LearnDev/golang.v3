@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"projects/exceptions"
+	"projects/repositorys/authorRepository"
 	"projects/utils"
 	"strings"
 
@@ -11,7 +12,6 @@ import (
 func LoginMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		auth := c.Request().Header.Get("Authorization")
-
 		if len(auth) < 10 {
 			return exceptions.InValidTokenException(c)
 		}
@@ -21,7 +21,8 @@ func LoginMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 				return exceptions.InValidTokenException(c)
 			}
 			user := utils.GetUserFromTokden(jwt)
-			if len(user.Name) == 0 {
+			_, dbuser := authorRepository.FindUserById(user.Id)
+			if (dbuser.Id != user.Id) || (dbuser.Name != user.Name) {
 				return exceptions.UnauthorizedException(c)
 			}
 		}
