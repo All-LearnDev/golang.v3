@@ -10,6 +10,13 @@ import (
 
 var Connection = configs.GetConnection()
 
+/**
+* Insert new project to Database.
+*
+* @param  project'name
+* @param  project'description
+* @return  project or error when connection to database fail
+ */
 func InsertNewProject(user entitys.User, project forms.FProject) (error, entitys.Project) {
 	newProject := entitys.Project{
 		Name:           project.Name,
@@ -19,6 +26,10 @@ func InsertNewProject(user entitys.User, project forms.FProject) (error, entitys
 	return error, newProject
 }
 
+/**
+* Get list projects from database.
+* @return  list projects or error when connection to database fail
+ */
 func GetListProjects() (tx *gorm.DB) {
 	var list []entitys.Project
 	result := Connection.Find(&list)
@@ -26,23 +37,37 @@ func GetListProjects() (tx *gorm.DB) {
 	return result
 }
 
-func GetProjectById(Id int) entitys.Project {
-	var project entitys.Project
-	Connection.Where("Id = ?", Id).Preload("Projects").First(&project)
-	return project
-
+/**
+* Update project info.
+*
+* @param  user'id
+* @param  project'info
+* @return  project or error when connection to database fail
+ */
+func UpdateProject(project entitys.Project) (error, entitys.Project) {
+	error := Connection.Save(&project).Error
+	return error, project
 }
 
-func GetSimpleProjectById(Id int) entitys.Project {
+/**
+* Get project info.
+*
+* @param  project'id
+* @return  project or error when connection to database fail
+ */
+func GetProjectById(Id int) (error, entitys.Project) {
 	var project entitys.Project
-	Connection.Where("Id = ?", Id).First(&project)
-	return project
-
+	error := Connection.Where("Id = ?", Id).First(&project).Error
+	return error, project
 }
 
-func UpdateProject(id int, name string, customer string) entitys.Project {
-	project := GetSimpleProjectById(id)
-	project.Name = name
-	Connection.Save(&project)
-	return project
+/**
+* Get project info.
+*
+* @param  project'id
+* @return  project or error when connection to database fail
+ */
+func DeleteProjectById(Id int) error {
+	error := Connection.Delete(&entitys.Project{}, Id).Error
+	return error
 }

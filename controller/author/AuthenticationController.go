@@ -12,7 +12,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+/**
+ * User login.
+ *
+ * @param  email
+ * @param  password
+ * @return  login success or fail
+ */
 func Login(c echo.Context) error {
+
 	var fuser forms.FLogin
 	c.Bind(&fuser)
 	var validate = validator.New()
@@ -23,7 +31,7 @@ func Login(c echo.Context) error {
 	} else {
 		// Throws unauthorized error
 		var user entitys.User
-		_, user = authorService.FindUserByUserEmail(fuser.Email)
+		_, user = authorService.GetUserByEmail(fuser.Email)
 		if (fuser.Email != user.Email) || (utils.CheckPasswordHash(fuser.Password, user.Password) != true) {
 			return exceptions.IncorrectUserNamePasswordException(c)
 		}
@@ -32,7 +40,7 @@ func Login(c echo.Context) error {
 		// Generate refreshToken
 		refreshToken := utils.GenerateRefreshToken(user.Id, user.Name)
 		// Save refreshToken to DB:
-		error, refreshToken := authorService.SaveRefreshToken(refreshToken)
+		error, refreshToken := authorService.InsertRefreshToken(refreshToken)
 		if error != nil {
 			return exceptions.DatabaseConnectionException(error, c)
 		}
@@ -46,6 +54,15 @@ func Login(c echo.Context) error {
 
 }
 
+/**
+ * Register User
+ *
+ * @param  user name
+ * @param  password
+ * @param  email
+ * @param  image
+ * @return  register user
+ */
 func Register(c echo.Context) error {
 	var fuser forms.FUser
 	fuser.Name = c.FormValue("username")
@@ -65,13 +82,13 @@ func Register(c echo.Context) error {
 
 	fuser.Image = imageName
 	// Check exits user in DB:
-	_, user := authorService.FindUserByEmail(fuser.Email)
+	_, user := authorService.GetUserByEmail(fuser.Email)
 	if user.Name != "" {
 		return exceptions.EmailExistsDBException(c)
 	}
 	// Register user
 	var newUser entitys.User
-	error, newUser := authorService.AddUser(fuser.Name, fuser.Email, fuser.Password, fuser.Image)
+	error, newUser := authorService.InsertUser(fuser.Name, fuser.Email, fuser.Password, fuser.Image)
 	if error != nil {
 		return exceptions.DatabaseConnectionException(error, c)
 	}
@@ -81,7 +98,7 @@ func Register(c echo.Context) error {
 	// Generate refreshToken
 	refreshToken := utils.GenerateRefreshToken(user.Id, fuser.Name)
 	// Save refreshToken to DB:
-	authorService.SaveRefreshToken(refreshToken)
+	authorService.InsertRefreshToken(refreshToken)
 	return c.JSON(http.StatusOK, echo.Map{
 		"result":        true,
 		"user":          newUser,
@@ -89,38 +106,4 @@ func Register(c echo.Context) error {
 		"refresh_token": refreshToken.Token,
 	})
 
-}
-
-func RenewToken(c echo.Context) error {
-	var return_access_token string
-	var return_refresh_token entitys.RefreshToken
-
-	refreshToken := c.Param("refreshToken")
-	//user_id := c.Param("user_id")
-	//intVar, _ := strconv.Atoi(user_id)
-	//_, user := authorService.FindUserById(intVar)
-
-	if utils.ValidToken(refreshToken) {
-		if utils.ExpiredToken(refreshToken) {
-			_, refreshTokenObject := authorService.FindRefreshTokenByToken(refreshToken)
-			if refreshTokenObject.UserName != "" {
-				// Generate access_token
-				return_access_token = utils.GenerateJWT(refreshTokenObject.UserId, refreshTokenObject.UserName)
-				// Generate refreshToken
-				return_refresh_token = utils.GenerateRefreshToken(refreshTokenObject.UserId, refreshTokenObject.UserName)
-				// Save refreshToken to DB:
-				authorService.SaveRefreshToken(return_refresh_token)
-			}
-
-		}
-	}
-	if return_access_token != "" && return_refresh_token.Token != "" {
-
-		return c.JSON(http.StatusOK, echo.Map{
-			"access_token":  return_access_token,
-			"refresh_token": return_refresh_token.Token,
-		})
-	} else {
-		return exceptions.InValidTokenException(c)
-	}
 }

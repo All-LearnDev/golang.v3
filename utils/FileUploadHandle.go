@@ -9,10 +9,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const filePath = "D:/go/Store"
+
 func Upload(c echo.Context) (error, []entitys.Images) {
 
 	var images []entitys.Images
-
 	form, err := c.MultipartForm()
 	if err != nil {
 		return err, nil
@@ -25,17 +26,14 @@ func Upload(c echo.Context) (error, []entitys.Images) {
 			return err, nil
 		}
 		defer src.Close()
-
 		var myfile entitys.Images
 		myfile.Filename = file.Filename
 		images = append(images, myfile)
-		dst, err := os.Create(filepath.Join("D:/go/Store", filepath.Base(file.Filename)))
+		dst, err := os.Create(filepath.Join(filePath, filepath.Base(file.Filename)))
 		if err != nil {
 			return err, nil
 		}
 		defer dst.Close()
-		println(" dress " + dst.Name())
-		// Copy
 		if _, err = io.Copy(dst, src); err != nil {
 			return err, nil
 		}
@@ -58,13 +56,11 @@ func SingleFileUpload(c echo.Context) (error, string) {
 	defer src.Close()
 	// Destination
 	imageName = file.Filename
-	dst, err := os.Create(filepath.Join("D:/go/Store", filepath.Base(file.Filename)))
+	dst, err := os.Create(filepath.Join(filePath, filepath.Base(file.Filename)))
 	if err != nil {
 		return err, imageName
 	}
 	defer dst.Close()
-
-	// Copy
 	if _, err = io.Copy(dst, src); err != nil {
 		return err, imageName
 	}

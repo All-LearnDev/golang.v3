@@ -16,11 +16,12 @@ const UN_AUTHORIZED = "Un Authorized"
 const IN_VALID_USERNAME_PASSWORD = "User name or password is incorrect"
 const VALIDATION_EXCEPTION string = "Validation exception"
 
-func RecordNotFoundException(c echo.Context) error {
+func RecordNotFoundException(storeErr error, c echo.Context) error {
 
 	return c.JSON(http.StatusBadRequest, echo.Map{
 		"result":  false,
 		"message": RECORD_NOT_FOUND,
+		"error":   storeErr.Error(),
 	})
 
 }

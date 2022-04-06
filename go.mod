@@ -31,6 +31,7 @@ require (
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.1 // indirect
 	github.com/labstack/echo/v4 v4.7.2 // indirect
@@ -46,6 +47,7 @@ require (
 	github.com/richardlehane/mscfb v1.0.3 // indirect
 	github.com/richardlehane/msoleps v1.0.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/sakirsensoy/genv v1.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
 	github.com/urfave/cli/v2 v2.4.0 // indirect

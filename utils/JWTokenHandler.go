@@ -96,7 +96,7 @@ func GetUserFromTokden(tokenString string) entitys.User {
 	return user
 }
 
-func ValidToken(validToken string) bool {
+func IsValidToken(validToken string) bool {
 
 	token, er := jwt.ParseWithClaims(validToken, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil
@@ -107,7 +107,7 @@ func ValidToken(validToken string) bool {
 	return token.Valid
 }
 
-func ExpiredToken(tokenString string) bool {
+func IsExpireToken(tokenString string) bool {
 	var expireTime int64
 	token, err := jwt.ParseWithClaims(tokenString, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secretKey), nil

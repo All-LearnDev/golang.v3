@@ -21,8 +21,8 @@ type FProject struct {
 	Description    string    `json:"description" validate:"required"`
 	CreatedAt      time.Time `json:"createdAt" `
 	UpdatedAt      time.Time `json:"updatedAt" `
-	CreateByUserId int
-	UpdateByUserId int
+	CreateByUserId int       `json:"createByUserId" `
+	UpdateByUserId int       `json:"updateByUserId" `
 	//Tasks       []Tasks   `json:"tasks" `
 }
 

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"projects/configs"
 	"projects/routers"
 
@@ -9,6 +11,7 @@ import (
 )
 
 func main() {
+	fmt.Println("editor:", os.Getenv("EDITOR"))
 	configs.AutoMigrate()
 	rest := echo.New()
 	rest.Use(middleware.CORS())
