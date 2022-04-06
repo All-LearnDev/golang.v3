@@ -2,8 +2,8 @@ package exceptions
 
 import (
 	"net/http"
-	"projects/utils"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
@@ -80,7 +80,7 @@ func StoreFileException(storeErr error, c echo.Context) error {
 
 }
 
-func ValidationFieldException(error []utils.FieldError, c echo.Context) error {
+func ValidationFieldException(error []FieldError, c echo.Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"result":  false,
@@ -88,4 +88,19 @@ func ValidationFieldException(error []utils.FieldError, c echo.Context) error {
 		"error":   error,
 	})
 
+}
+func Validate(form interface{}) []FieldError {
+
+	var validate = validator.New()
+	err := validate.Struct(form)
+	var listError []FieldError
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			var errorMessage FieldError
+			errorMessage.Field = err.Field()
+			errorMessage.Error = err.Error()
+			listError = append(listError, errorMessage)
+		}
+	}
+	return listError
 }

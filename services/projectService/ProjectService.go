@@ -11,22 +11,22 @@ import (
 	"gorm.io/gorm"
 )
 
-func AddNewProject(project forms.FProject, c echo.Context) (error, entitys.Project) {
+func InsertNewProject(project forms.FProject, c echo.Context) (error, entitys.Project) {
 
 	auth := c.Request().Header.Get("Authorization")
 	jwt := strings.Split(auth, " ")[1]
 	user := utils.GetUserFromTokden(jwt)
-	return projectRepository.AddNewProject(user, project)
+	return projectRepository.InsertNewProject(user, project)
 }
 
-func ListProjects() (tx *gorm.DB) {
-	return projectRepository.ListProjects()
+func GetListProjects() (tx *gorm.DB) {
+	return projectRepository.GetListProjects()
 }
 
-func FindProjectById(Id int) entitys.Project {
-	return projectRepository.FindProjectById(Id)
+func GetProjectById(Id int) entitys.Project {
+	return projectRepository.GetProjectById(Id)
 }
 
-func FindSimpleProjectById(Id int) entitys.Project {
-	return projectRepository.FindSimpleProjectById(Id)
+func GetSimpleProjectById(Id int) entitys.Project {
+	return projectRepository.GetSimpleProjectById(Id)
 }

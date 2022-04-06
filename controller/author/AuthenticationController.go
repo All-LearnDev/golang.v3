@@ -18,7 +18,7 @@ func Login(c echo.Context) error {
 	var validate = validator.New()
 	err := validate.Struct(fuser)
 	if err != nil {
-		listError := utils.Validate(fuser)
+		listError := exceptions.Validate(fuser)
 		return exceptions.ValidationFieldException(listError, c)
 	} else {
 		// Throws unauthorized error
@@ -59,7 +59,7 @@ func Register(c echo.Context) error {
 	var validate = validator.New()
 	err := validate.Struct(fuser)
 	if err != nil {
-		listError := utils.Validate(fuser)
+		listError := exceptions.Validate(fuser)
 		return exceptions.ValidationFieldException(listError, c)
 	}
 
