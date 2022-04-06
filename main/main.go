@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	configs.AutoMigrate()
 	rest := echo.New()
 	rest.Use(middleware.CORS())
